@@ -14,10 +14,12 @@ class RegistrationForm(forms.ModelForm):
         firstName = forms.CharField(widget=forms.TextInput,label="FirstName")
         lastName = forms.CharField(widget=forms.TextInput,label="LastName")
         email = forms.EmailField(widget=forms.TextInput,label="Email")
-        
+        CHOICES=[(0,'Immediate'),
+         (10,'Every 10 minutes'), (60, 'Every hour')]
+        emailEvery = forms.ChoiceField(label='Notification Frequency', choices=CHOICES)
         class Meta:
                 model = User
-                fields = ['firstName', 'lastName', 'userName', 'email', 'password1', 'password2', 'picture'] 
+                fields = ['firstName', 'lastName', 'userName', 'email', 'password1', 'password2', 'picture', 'emailEvery'] 
         
         def clean(self):
             cleaned_data = super(RegistrationForm, self).clean()
@@ -43,13 +45,15 @@ class AuthenticationForm(forms.Form):
 
     class Meta:
         fields = ['userName', 'password']
-
+        
 class EditProfileForm(forms.ModelForm):
     email = forms.CharField(max_length=75, widget=forms.EmailInput())
-        
+    CHOICES=[(0,'Immediate'),
+         (10,'Every 10 minutes'), (60, 'Every hour')]
+    emailEvery = forms.ChoiceField(label='Notification Frequency', choices=CHOICES)        
     class Meta:
         model = User
-        fields = ['firstName', 'lastName', 'email', 'picture'] 
+        fields = ['firstName', 'lastName', 'email', 'picture', 'emailEvery'] 
         
 class ChangePasswordForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput,

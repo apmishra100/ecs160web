@@ -16,6 +16,8 @@ from .models import LoggedUser
 
 from .forms import AuthenticationForm, RegistrationForm, EditProfileForm, ChangePasswordForm
 
+from .tasks import *
+
 media = '/home/apmishra100/ecs160/media/'
 
 
@@ -25,7 +27,23 @@ def index(request):
     template = loader.get_template('warcraft/index.html')
     return HttpResponse(template.render())
     
-
+def ranking(request):
+    top_players = User.objects.order_by('-rating')
+    current_index = 1
+    for player in top_players:
+        player.ranking = current_index
+        player.save()
+        current_index = current_index + 1
+    return render(request, 'warcraft/ranking.html', {'players': top_players})
+    
+def updateScores(request, winningPlayer, losingPlayer):
+    k = 10 #The K value is an arbitrary value we choose based on how much we want
+    #a player's score to increase/decrease after a match
+    Ea = 1 / (1 + 10** ((winningPlayer.rating - losingPlayer.rating) / 400))
+    Eb = 1 / (1 + 10** ((losingPlayer.rating - winningPlayer.rating) / 400))
+    winningPlayer.rating = winningPlayer.rating + k * (1 - Ea)
+    losingPlayer.rating = losingPlayer.rating + k * (0 - Eb)
+    
 def prototype_form(request):
     template = loader.get_template('warcraft/prototype_form.html')
     return HttpResponse(template.render())
@@ -116,13 +134,17 @@ def loggedin(request):
     picture = request.user.picture
     fname = request.user.firstName
     lname = request.user.lastName
-    return render(request, 'warcraft/loggedin.html', {'full_name': fname+" "+lname, 'avatar':picture})
+    wins = request.user.get_wins
+    losses = request.user.get_losses
+    rating = request.user.get_rating
+    ranking = request.user.get_ranking
+    return render(request, 'warcraft/loggedin.html', {'full_name': fname+" "+lname, 'avatar':picture, 'wins': wins, 'losses': losses, 'rating': rating, 'ranking': ranking})
 
 def invalid_login(request):
     message= "Invalid login credentials"
     emptystring=""
     return render(request, 'warcraft/invalid_login.html', {'user_name':emptystring, 'message':message})
-
+    
 def edit_profile(request):
     if request.method == "POST":
         form = EditProfileForm(data=request.POST, instance=request.user)
@@ -215,3 +237,12 @@ def internalLoggedIn (request):
 def downloads(request):
     template = loader.get_template('warcraft/downloads.html')
     return HttpResponse(template.render())
+
+def compose_success(request):
+    x = request.POST.get("recipient", "")
+    send_mail('You sent mail!', 'You send a message!', 'chriscraftecs160@gmail.com', [request.user.email], fail_silently=False)
+    return render(request, 'warcraft/compose_success.html', {'recipient' : x})
+
+def send_something(request):
+    send_something_1()
+    return render(request, 'warcraft/send_something.html')
