@@ -19,12 +19,13 @@ Modify /etc/apache2/apache2.conf to be the same as the apache2.conf in the repos
 Modify /etc/apache2/sites-enabled/000-default.conf to be the same as the 000-default.conf in the repository substituting your koding username for my apmishra100.
 
 Replace apmishra100 with your username in ecs160/ecs160/settings.py
----
-Setting up messaging
 
+Setting up messaging
+---
 Change directories to the django-messages directory located within the ecs160 project folder and run:  
   sudo python setup.py install  
----
+
+
 python ~/ecs160/manage.py collectstatic
 
 sudo apachectl restart
