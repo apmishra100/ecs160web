@@ -116,6 +116,18 @@ class User(SimpleEmailConfirmationUserMixin, AbstractBaseUser):
         def get_rating(self):
             return self.rating
 
+        def beats(self, losingPlayer):
+            k = 10 #The K value is an arbitrary value we choose based on how much we want
+            #a player's score to increase/decrease after a match
+            Ea = 1 / (1 + 10** ((self.rating - losingPlayer.rating) / 400))
+            Eb = 1 / (1 + 10** ((losingPlayer.rating - self.rating) / 400))
+            self.wins = self.wins + 1
+            self.rating = self.rating + k * (1 - Ea)
+            self.save()
+            losingPlayer.losses = losingPlayer.losses + 1
+            losingPlayer.rating = losingPlayer.rating + k * (0 - Eb)
+            losingPlayer.save()
+
         def get_ranking(self):
             return self.ranking
 
