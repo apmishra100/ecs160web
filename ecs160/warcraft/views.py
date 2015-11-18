@@ -197,7 +197,7 @@ def register_user(request):
             htmly = get_template('warcraft/email.html')
             text_content = plaintext.render(d)
             html_content = htmly.render(d)
-            subject = "Acivation"
+            subject = "Activation"
             from_email = "chriscraftecs160@gmail.com"
             msg = EmailMultiAlternatives(subject, text_content, from_email, [user.email])
             msg.attach_alternative(html_content, "text/html")
